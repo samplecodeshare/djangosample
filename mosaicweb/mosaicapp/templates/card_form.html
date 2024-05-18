@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="text-center mt-4 mb-4">{{ card_name }}</h1>
+                <form id="cardForm">
+                    {% csrf_token %}
+                    <table class="table">
+                        <tbody>
+                            {% for field in form %}
+                                <tr>
+                                    <td class="text-right">{{ field.label_tag }}:</td>
+                                    <td>{{ field }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a href="/card-list" class="btn btn-secondary">Home</a>
+                    </div>
+                </form>
+                <div id="downloadLink" class="text-center mt-4" style="display: none;">
+                    <a href="#" id="zipDownload" class="btn btn-success">Download ZIP</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#cardForm').on('submit', function(event) {
+                event.preventDefault(); // Prevent the form from submitting the traditional way
+
+                // Serialize form data to JSON
+                var formData = {};
+                $(this).find(':input[name]').each(function() {
+                    formData[this.name] = $(this).val();
+                });
+
+                // Get CSRF token from the form
+                var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+                // Send JSON data to the REST API
+                $.ajax({
+                    url: '/api/submit/', // Replace with your API endpoint
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    headers: {
+                        'X-CSRFToken': csrfToken // Send CSRF token in the header for Django
+                    },
+                    success: function(response) {
+                        // Assume the response contains the download link in 'download_url' key
+                        if (response.download_url) {
+                            $('#zipDownload').attr('href', response.download_url);
+                            $('#downloadLink').show();
+                        } else {
+                            alert('No download link received.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred while submitting the form.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

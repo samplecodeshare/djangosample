@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/MultiSelect.css">
+    <script src="/static/jquery-3.5.1.min.js"></script>
+    <script src="/static/bootstrap.min.js"></script>
+    
+    <style>
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shade effect */
+            transition: box-shadow 0.3s ease-in-out;
+            background-color: #ffffff; /* White background */
+            cursor: pointer; /* Change cursor to pointer for clickable effect */
+        }
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #007bff; /* Highlight border on hover */
+        }
+        .card .card-body {
+            padding: 1rem; /* Add padding to card body */
+        }
+        .tags {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        /* Define different background colors for cards */
+        .card-color-1 {
+            background-color: #a2b9bc; /* Light gray */
+            text-decoration: none;
+        }
+        .card-color-2 {
+            background-color: #b2ad7f; /* Very light gray */
+            text-decoration: none;
+        }
+        .card-color-3 {
+            background-color: #878f99; /* Lighter gray */
+            text-decoration: none;
+        }
+        .card-color-4 {
+            background-color: #d6cbd3; /* Even lighter gray */
+            text-decoration: none;
+        }
+        .card-color-5 {
+            background-color: #ada397; /* Nearly white */
+            text-decoration: none;
+        }
+
+        /* Custom Header Styling */
+        header {
+            background-color: #343a40; /* Dark background color */
+            color: #ffffff; /* White text color */
+            padding: 10px 20px; /* Reduced padding */
+            display: flex;
+            justify-content: space-between; /* Align items to the left and right */
+            align-items: center;
+            height: 50px; /* Reduced height */
+        }
+        .header-title {
+            font-size: 18px; /* Reduced font size */
+            margin: 0; /* Remove default margin */
+        }
+        .header-links a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .header-links a i {
+            margin-right: 5px;
+        }
+
+        /* Filter buttons styling */
+        .btn-group {
+            text-align: center; /* Horizontally center align the buttons */
+        }
+        .btn-group .btn {
+            margin-right: 5px; /* Add margin between buttons */
+        }
+
+        /* Custom button styles */
+        .btn-select {
+            background-color: #405d27; /* Light blue color */
+            color: white;
+            border-color: #87CEEB;
+        }
+        .btn-select:hover {
+            background-color: #425631; /* Slightly darker blue on hover */
+            border-color: #00BFFF;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="header-title">Your Header Title</h1>
+        <div class="header-links">
+            <a href="#"><i class="fas fa-question-circle"></i>Help</a> <!-- Help icon added -->
+        </div>
+    </header>
+
+    <div class="container mt-4"> <!-- Add margin-top for buffer -->
+        <!-- Filter Section -->
+        <div class="mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <select id="tagFilter" class="form-control">
+                        {% for tag in tags %}
+                            <option value="{{ tag }}">{{ tag }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="btn-group" role="group" aria-label="Filter buttons">
+                        <button id="applyFilter" class="btn btn-primary">Apply Filter</button>
+                        <button id="resetFilter" class="btn btn-secondary">Reset Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card List -->
+        <div id="cardList">
+            {% if cards %}
+                <div class="row">
+                    {% for card in cards %}
+                        <div class="col-md-4">
+                            <div class="card {% cycle 'card-color-1' 'card-color-2' 'card-color-3' 'card-color-4' 'card-color-5' %}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ card.title }}</h5>
+                                    <p class="card-text">{{ card.description }}</p>
+                                    <p class="tags">Tags: {{ card.tags }}</p>
+                                    <!-- Select button -->
+                                    <button class="btn btn-select" onclick="location.href='/card-form?card_name={{ card.title }}';">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No cards available.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function () {
+            // Apply filter button click handler
+            $('#applyFilter').click(function () {
+                var query = "";
+                mySelect.data.forEach(function (element) {
+                    if (element['selected']){
+                        query = query + "tags=" + encodeURIComponent(element['value']) + '&';
+                    }
+                });
+                window.location.href = '?' + query;
+            });
+
+            // Reset filter button click handler
+            $('#resetFilter').click(function () {
+                window.location.href = window.location.pathname;
+            });
+        });
+    </script>
+    <script src="/static/MultiSelect.js"></script>
+    <script>
+        var mySelect = new MultiSelect(document.getElementById('tagFilter'), {
+            placeholder: 'Select Tags',
+            search: true,  // Enable the search box
+            selectAll: true,  // Add a select all option
+            listAll: true,
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card List</title>
+    <style>
+        .card {
+            margin-bottom: 20px;
+        }
+        .tags {
+            font-style: italic;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4 mb-4">Cookie Cutters</h1>
+
+        <!-- Filter Section -->
+        <div class="mb-4">
+            <label for="tagFilter">Filter by Tags:</label>
+            <select id="tagFilter" class="form-control" multiple>
+                {% for tag in tags %}
+                    <option value="{{ tag }}">{{ tag }}</option>
+                {% endfor %}
+            </select>
+            <div class="mt-2">
+                <button id="applyFilter" class="btn btn-primary">Apply Filter</button>
+                <button id="resetFilter" class="btn btn-secondary">Reset Filter</button>
+            </div>
+        </div>
+
+        <!-- Card List -->
+        <div id="cardList">
+            {% if cards %}
+                <div class="row">
+                    {% for card in cards %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ card.title }}</h5>
+                                    <p class="card-text">{{ card.description }}</p>
+                                    <p class="tags">Tags: {{ card.tags }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No cards available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap MultiSelect script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        $(document).ready(function() {
+            // Initialize the multiselect plugin
+            $('#tagFilter').multiselect({
+                includeSelectAllOption: true,
+                nonSelectedText: 'Select Tags'
+            });
+
+            // Apply filter button click handler
+            $('#applyFilter').click(function() {
+                var selectedTags = $('#tagFilter').val();                
+                var query = selectedTags.map(tag => 'tags=' + encodeURIComponent(tag)).join('&');
+                window.location.href = '?' + query;
+            });
+
+            // Reset filter button click handler
+            $('#resetFilter').click(function() {
+                window.location.href = window.location.pathname;
+            });
+        });
+    </script>
+</body>
+</html>
