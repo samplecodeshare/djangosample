@@ -130,3 +130,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+LOG_FILE_PATH = os.path.join(BASE_DIR, '/logfile.log')
+
+from .loguru_config import logger
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+

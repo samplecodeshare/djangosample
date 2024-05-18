@@ -1,0 +1,37 @@
+<!-- templates/log_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .log-container {
+            width: 80%;
+            height: 80vh;
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-y: scroll;
+            background-color: #f9f9f9;
+            white-space: pre-wrap; /* Preserves the formatting of the log file */
+        }
+    </style>
+</head>
+<body>
+    <div class="log-container" id="logContainer">
+        {{ log_content }}
+    </div>
+    
+    <script>
+        window.onload = function() {
+            var logContainer = document.getElementById("logContainer");
+            logContainer.scrollTop = logContainer.scrollHeight; // Scroll to the bottom
+        };
+    </script>
+</body>
+</html>

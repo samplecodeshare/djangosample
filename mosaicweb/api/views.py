@@ -27,7 +27,11 @@ def get_cards(request):
 
 def get_card_params(request):
     card_params = [
-        {"full_name": "Alice Cookie", "email": "foobar@example.com", "project_name": "Django Boilerplate","version": "0.1.0"}
+        {"full_name": "Alice Cookie", 
+         "email": "foobar@example.com", 
+         "project_name": "Django Boilerplate",
+         "version": "0.1.0",
+         "license": ["MIT", "BSD-3", "GNU GPL v3.0", "Apache Software License 2.0"]}
     ]
     return JsonResponse(card_params, safe=False)
 
@@ -37,6 +41,8 @@ def generate_download_link(request):
         try:
             data = json.loads(request.body)
             print("DATA=" + str(data))
+            import time
+            time.sleep(10)
             # Process the data here. For example, create a ZIP file based on the data.
             # We'll simulate this by generating a dummy file path.
 

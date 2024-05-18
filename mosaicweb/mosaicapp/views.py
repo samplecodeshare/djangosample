@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django import forms
 from django.views.decorators.cache import cache_page
 from loguru import logger
+from django.conf import settings
+import os
 
 class DynamicForm(forms.Form):
     pass  # Dynamic form fields will be added programmatically
@@ -26,7 +28,7 @@ def common_member(a, b):
 # @cache_page(60 * 15)  # Cache this view for 15 minutes
 def card_list(request):
     # URL of the REST API endpoint that returns the list of cards
-    api_url = 'api/cards/'
+    api_url = 'http://localhost:8000/api/cards/'
 
     selected_tags = request.GET.getlist('tags')
     logger.debug("Selected Tags.." + str(selected_tags))
@@ -72,7 +74,7 @@ def card_list(request):
 
 def get_parameters_from_api(card_name):
     # Call the REST API to get parameters based on the card name
-    api_url = f"/api/cardparams/"
+    api_url = f"http://localhost:8000/api/cardparams/"
     response = requests.get(api_url)
     if response.status_code == 200:
         return response.json()
@@ -91,10 +93,40 @@ def card_form(request):
             # Dynamically generate a form based on parameters
             dynamic_fields = {}
             for key, value in parameters[0].items():
-                dynamic_fields[key] = forms.CharField(initial=value, label=key.replace('_', ' ').title())
+                # dynamic_fields[key] = forms.CharField(initial=value, label=key.replace('_', ' ').title())
+
+                logger.info("Type of the value in cookiecutterjson is = " + str(type(value)))
+                if (isinstance(value, list)):
+                    choices = [(option, option) for option in value]
+                    dynamic_fields[key] = forms.ChoiceField(
+                        label=key.replace('_', ' ').title(),
+                        choices=choices,  # Choices will be populated in the view
+                        widget=forms.Select(attrs={'class': 'form-control'})
+                    )
+                else:                    
+                    dynamic_fields[key] = forms.CharField(
+                        label=key.replace('_', ' ').title(),
+                        min_length=0,  # Minimum number of characters
+                        max_length=50,  # Maximum number of characters
+                        initial= value,
+                        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': value})
+                    )
+
             DynamicForm.base_fields.update(dynamic_fields)
             form = DynamicForm()
         else:
             form = None
 
     return render(request, 'card_form.html', {'form': form , 'card_name':card_name })
+
+def log_view(request):
+    log_file_path = os.path.join(settings.BASE_DIR, 'debug.log' )
+    logger.info("Log file =" + log_file_path)
+    
+    if os.path.exists(log_file_path):
+        with open(log_file_path, 'r') as file:
+            log_content = file.read()
+    else:
+        log_content = "Log file not found."
+    
+    return render(request, 'log_template.html', {'log_content': log_content})

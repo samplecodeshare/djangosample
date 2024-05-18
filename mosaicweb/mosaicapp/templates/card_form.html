@@ -7,16 +7,41 @@
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container {
-            max-width: 600px;
+        .card-details {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            height: 100%; /* Ensure full height for equal height columns */
+            padding: 30px;            
+        }
+        .card-form {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .card-details h2, .card-form h2 {
+            margin-top: 0;
+        }
+        .spinner-border {
+            display: none; /* Initially hide the spinner */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <h1 class="text-center mt-4 mb-4">{{ card_name }}</h1>
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Card Details Column (30%) -->
+            <div class="col-md-4 card-details">
+                <h2>Card Details</h2>
+                <p><strong>Name:</strong> {{ card_name }}</p>
+                <!-- Add more card details here as needed -->
+            </div>
+
+            <!-- Card Form Column (70%) -->
+            <div class="col-md-8 card-form">
+                <h2>Card Form</h2>
                 <form id="cardForm">
                     {% csrf_token %}
                     <table class="table">
@@ -24,7 +49,7 @@
                             {% for field in form %}
                                 <tr>
                                     <td class="text-right">{{ field.label_tag }}:</td>
-                                    <td>{{ field }}</td>
+                                    <td >{{ field }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -34,6 +59,11 @@
                         <a href="/card-list" class="btn btn-secondary">Home</a>
                     </div>
                 </form>
+                <div id="spinner" class="text-center mt-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
                 <div id="downloadLink" class="text-center mt-4" style="display: none;">
                     <a href="#" id="zipDownload" class="btn btn-success">Download ZIP</a>
                 </div>
@@ -50,12 +80,16 @@
             $('#cardForm').on('submit', function(event) {
                 event.preventDefault(); // Prevent the form from submitting the traditional way
 
+                // Show the spinner
+                $('#spinner').show();
+
                 // Serialize form data to JSON
                 var formData = {};
                 $(this).find(':input[name]').each(function() {
                     formData[this.name] = $(this).val();
                 });
 
+                formData["card_name"] = "{{card_name}}"
                 // Get CSRF token from the form
                 var csrfToken = $('[name=csrfmiddlewaretoken]').val();
 
@@ -69,6 +103,9 @@
                         'X-CSRFToken': csrfToken // Send CSRF token in the header for Django
                     },
                     success: function(response) {
+                        // Hide the spinner
+                        $('#spinner').hide();
+
                         // Assume the response contains the download link in 'download_url' key
                         if (response.download_url) {
                             $('#zipDownload').attr('href', response.download_url);
@@ -78,6 +115,8 @@
                         }
                     },
                     error: function(xhr, status, error) {
+                        // Hide the spinner
+                        $('#spinner').hide();
                         alert('An error occurred while submitting the form.');
                     }
                 });
