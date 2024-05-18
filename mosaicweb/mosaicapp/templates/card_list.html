@@ -11,58 +11,74 @@
     <style>
         .card {
             margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shade effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transition: box-shadow 0.3s ease-in-out;
-            background-color: #ffffff; /* White background */
-            cursor: pointer; /* Change cursor to pointer for clickable effect */
+            background-color: #ffffff;
+            position: relative;
         }
         .card:hover {
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            border: 1px solid #007bff; /* Highlight border on hover */
+            border: 1px solid #007bff;
         }
         .card .card-body {
-            padding: 1rem; /* Add padding to card body */
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
         }
-        .tags {
-            font-style: italic;
-            color: #6c757d;
+        .card .card-body .content {
+            flex-grow: 1;
         }
-
-        /* Define different background colors for cards */
+        .card .card-body .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #54575a;
+            border-radius: 10px;
+            padding: 0.1em 0.4em;
+            margin: 0.15em;
+            font-style: normal;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .card .icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
         .card-color-1 {
-            background-color: #a2b9bc; /* Light gray */
-            text-decoration: none;
+            background-color: #a2b9bc;
         }
         .card-color-2 {
-            background-color: #b2ad7f; /* Very light gray */
-            text-decoration: none;
+            background-color: #b2ad7f;
         }
         .card-color-3 {
-            background-color: #878f99; /* Lighter gray */
-            text-decoration: none;
+            background-color: #878f99;
         }
         .card-color-4 {
-            background-color: #d6cbd3; /* Even lighter gray */
-            text-decoration: none;
+            background-color: #d6cbd3;
         }
         .card-color-5 {
-            background-color: #ada397; /* Nearly white */
-            text-decoration: none;
+            background-color: #ada397;
         }
-
-        /* Custom Header Styling */
         header {
-            background-color: #343a40; /* Dark background color */
-            color: #ffffff; /* White text color */
-            padding: 10px 20px; /* Reduced padding */
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 10px 20px;
             display: flex;
-            justify-content: space-between; /* Align items to the left and right */
+            justify-content: space-between;
             align-items: center;
-            height: 50px; /* Reduced height */
+            height: 50px;
         }
         .header-title {
-            font-size: 18px; /* Reduced font size */
-            margin: 0; /* Remove default margin */
+            font-size: 18px;
+            margin: 0;
         }
         .header-links a {
             color: #ffffff;
@@ -71,24 +87,20 @@
         .header-links a i {
             margin-right: 5px;
         }
-
-        /* Filter buttons styling */
         .btn-group {
-            text-align: center; /* Horizontally center align the buttons */
+            text-align: center;
         }
         .btn-group .btn {
-            margin-right: 5px; /* Add margin between buttons */
+            margin-right: 5px;
         }
-
-        /* Custom button styles */
         .btn-select {
-            background-color: #405d27; /* Light blue color */
+            background-color: #405d27;
             color: white;
-            border-color: #87CEEB;
+            border-color: #405d27;
         }
         .btn-select:hover {
-            background-color: #425631; /* Slightly darker blue on hover */
-            border-color: #00BFFF;
+            background-color: #425631;
+            border-color: #425631;
         }
     </style>
 </head>
@@ -96,18 +108,19 @@
     <header>
         <h1 class="header-title">Your Header Title</h1>
         <div class="header-links">
-            <a href="#"><i class="fas fa-question-circle"></i>Help</a> <!-- Help icon added -->
+            <a href="#"><i class="fas fa-question-circle"></i>Help</a>
         </div>
     </header>
 
-    <div class="container mt-4"> <!-- Add margin-top for buffer -->
-        <!-- Filter Section -->
+
+    <div class="container mt-4">
         <div class="mb-4">
             <div class="row">
                 <div class="col-md-8">
-                    <select id="tagFilter" class="form-control">
+                    <select id="tagFilter" class="form-control" multiple>
                         {% for tag in tags %}
-                            <option value="{{ tag }}">{{ tag }}</option>
+                            <!-- <option value="{{ tag }}">{{ tag }}</option> -->
+                            <option value="{{ tag }}" {% if tag in selected_tags %} selected {% endif %}>{{ tag }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -120,7 +133,6 @@
             </div>
         </div>
 
-        <!-- Card List -->
         <div id="cardList">
             {% if cards %}
                 <div class="row">
@@ -128,11 +140,19 @@
                         <div class="col-md-4">
                             <div class="card {% cycle 'card-color-1' 'card-color-2' 'card-color-3' 'card-color-4' 'card-color-5' %}">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ card.title }}</h5>
-                                    <p class="card-text">{{ card.description }}</p>
-                                    <p class="tags">Tags: {{ card.tags }}</p>
-                                    <!-- Select button -->
-                                    <button class="btn btn-select" onclick="location.href='/card-form?card_name={{ card.title }}';">Select</button>
+                                    <img src="https://picsum.photos/id/1/200/300" alt="Icon" class="icon">
+                                    <div class="content">
+                                        <h5 class="card-title">{{ card.title }}</h5>
+                                        <p class="card-text">{{ card.description }}</p>
+                                        <div class="tags">
+                                            {% for tag in card.tags %}
+                                                <span class="tag" onclick="filterByTag('{{ tag }}')">{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="button-container">
+                                        <button class="btn btn-select" onclick="location.href='/card-form?card_name={{ card.title }}';">Select</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -146,29 +166,31 @@
     
     <script>
         $(document).ready(function () {
-            // Apply filter button click handler
             $('#applyFilter').click(function () {
                 var query = "";
                 mySelect.data.forEach(function (element) {
                     if (element['selected']){
-                        query = query + "tags=" + encodeURIComponent(element['value']) + '&';
+                        query += "tags=" + encodeURIComponent(element['value']) + '&';
                     }
                 });
                 window.location.href = '?' + query;
             });
 
-            // Reset filter button click handler
             $('#resetFilter').click(function () {
                 window.location.href = window.location.pathname;
             });
         });
+
+        function filterByTag(tag) {
+            window.location.href = '?tags=' + encodeURIComponent(tag);
+        }
     </script>
     <script src="/static/MultiSelect.js"></script>
     <script>
         var mySelect = new MultiSelect(document.getElementById('tagFilter'), {
             placeholder: 'Select Tags',
-            search: true,  // Enable the search box
-            selectAll: true,  // Add a select all option
+            search: true,
+            selectAll: true,
             listAll: true,
         });
     </script>

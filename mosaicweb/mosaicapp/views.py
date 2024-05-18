@@ -5,6 +5,8 @@ import json
 import requests
 from django.shortcuts import render
 from django import forms
+from django.views.decorators.cache import cache_page
+from loguru import logger
 
 class DynamicForm(forms.Form):
     pass  # Dynamic form fields will be added programmatically
@@ -21,12 +23,13 @@ def common_member(a, b):
     else: 
         return False 
 
+# @cache_page(60 * 15)  # Cache this view for 15 minutes
 def card_list(request):
     # URL of the REST API endpoint that returns the list of cards
-    api_url = 'http://localhost:8000/api/cards/'
+    api_url = 'api/cards/'
 
     selected_tags = request.GET.getlist('tags')
-    # print("Selected Tags.." + str(selected_tags))
+    logger.debug("Selected Tags.." + str(selected_tags))
 
     try:
         # Make a GET request to the API endpoint
@@ -47,10 +50,7 @@ def card_list(request):
                 if selected_tags :
                     if common_member(tags,selected_tags):
                         selected_cards.append(card)
-                        # print("Adding Card 1 =" + str(card))
                 else:
-                    # print(" No Tag Selected")
-                    # print("Adding Card 2 =" + str(card))
                     selected_cards.append(card)
                 
                 # Add each tag to the set of unique tags
@@ -58,10 +58,10 @@ def card_list(request):
 
             # Convert the set to a sorted list (optional)
             sorted_unique_tags = sorted(unique_tags)
-            # print(selected_cards)
+            logger.debug("Selected Tags = " + str(selected_tags) + "Tags =" + str(tags))
 
             # Pass the list of cards to the template for rendering
-            return render(request, 'card_list.html', {'cards': selected_cards, 'tags': sorted(sorted_unique_tags)})
+            return render(request, 'card_list.html', {'cards': selected_cards, 'tags': sorted(sorted_unique_tags),'selected_tags': selected_tags})
         else:
             # If the request was not successful, raise an exception
             response.raise_for_status()
@@ -72,7 +72,7 @@ def card_list(request):
 
 def get_parameters_from_api(card_name):
     # Call the REST API to get parameters based on the card name
-    api_url = f"http://localhost:8000/api/cardparams/"
+    api_url = f"/api/cardparams/"
     response = requests.get(api_url)
     if response.status_code == 200:
         return response.json()
