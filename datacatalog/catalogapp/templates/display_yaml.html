@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Display YAML</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .section-box {
+            font-size: 1em; /* Adjust the font size as needed */
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            border: none;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #ddd;
+        }
+        .details-div {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .details-item {
+            flex: 1 1 30%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <h2>{{ filename }}</h2>
+        <div>
+            <a href="{% url 'list_yaml_files' %}" class="btn btn-primary">Catalog</a>
+            <a href="{% url 'edit_yaml' %}?filename={{ filename }}" class="btn btn-primary">Edit</a>
+        </div>
+    </div>
+    
+    <!-- Info Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#infoSection" aria-expanded="false">
+            Info
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="infoSection" class="collapse">
+            <table class="table">
+                {% for key, value in data.info.items %}
+                <tr>
+                    <th>{{ key|title }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    
+    <!-- Servers Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#serversSection" aria-expanded="false">
+            Servers
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="serversSection" class="collapse">
+            <table class="table table-bordered">
+                <tr>
+                    {% for key in data.servers.production %}
+                    <th>{{ key|title }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for value in data.servers.production.values %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Terms Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#termsSection" aria-expanded="false">
+            Terms
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="termsSection" class="collapse">
+            <table class="table">
+                {% for key, value in data.terms.items %}
+                <tr>
+                    <th>{{ key|title }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    
+    <!-- Models Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#modelsSection" aria-expanded="false">
+            Models
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="modelsSection" class="collapse">
+            {% for model, model_data in data.models.items %}
+            <div class="section-box">
+                <h4 class="section-title" data-toggle="collapse" data-target="#model{{ forloop.counter }}" aria-expanded="false">
+                    {{ model }}
+                    <i class="fas fa-chevron-down"></i>
+                </h4>
+                <div id="model{{ forloop.counter }}" class="collapse">
+                    <p>{{ model_data.description }}</p>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Details</th>
+                        </tr>
+                        {% for field, details in model_data.fields.items %}
+                        <tr>
+                            <td>{{ field }}</td>
+                            <td>{{ details.type }}</td>
+                            <td>
+                                <div class="details-div">
+                                    {% for detail_key, detail_value in details.items %}
+                                    {% if detail_key != "type" %}
+                                    <div class="details-item"><strong>{{ detail_key|title }}:</strong> {{ detail_value }}</div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Definitions Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#definitionsSection" aria-expanded="false">
+            Definitions
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="definitionsSection" class="collapse">
+            {% for definition, definition_data in data.definitions.items %}
+            <h4>{{ definition }}</h4>
+            <table class="table table-bordered">
+                {% for key, value in definition_data.items %}
+                <tr>
+                    <th>{{ key|title }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Service Levels Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#serviceLevelsSection" aria-expanded="false">
+            Service Levels
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="serviceLevelsSection" class="collapse">
+            {% for level, level_data in data.servicelevels.items %}
+            <div class="section-box">
+                <h4 class="section-title" data-toggle="collapse" data-target="#level{{ forloop.counter }}" aria-expanded="false">
+                    {{ level|title }}
+                    <i class="fas fa-chevron-down"></i>
+                </h4>
+                <div id="level{{ forloop.counter }}" class="collapse">
+                    <table class="table table-bordered">
+                        {% for key, value in level_data.items %}
+                        <tr>
+                            <th>{{ key|title }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $('.section-title').on('click', function() {
+        $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+    });
+</script>
+</body>
+</html>

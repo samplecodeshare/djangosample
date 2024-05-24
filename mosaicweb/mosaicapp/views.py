@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page
 from loguru import logger
 from django.conf import settings
 import os
+import yaml
 
 class DynamicForm(forms.Form):
     pass  # Dynamic form fields will be added programmatically
@@ -130,3 +131,12 @@ def log_view(request):
         log_content = "Log file not found."
     
     return render(request, 'log_template.html', {'log_content': log_content})
+
+def display_yaml(request):
+    with open('C:/muddusri/dev/djangosample/mosaicweb/datacontract.yml', 'r') as file:
+        yaml_content = yaml.safe_load(file)
+    context = {
+        'data': yaml_content
+    }
+    return render(request, 'display_yaml.html', context)        
+    

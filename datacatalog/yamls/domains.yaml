@@ -1,0 +1,10 @@
+domainSpecification: 0.9.3
+domains:
+  domain1:
+    id: domain1
+    owner: owner1
+    arch : arch1
+  domain2:
+    id: domain2
+    owner: owner2
+    arch: arch2

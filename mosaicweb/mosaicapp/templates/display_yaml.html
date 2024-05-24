@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Display</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .section-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            border: none; /* Remove borders for Info table rows */
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #ddd; /* Apply border only for specific tables */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Info Section -->
+        <div class="section-box">
+            <div class="section-title">Info</div>
+            <table class="table">
+                {% for key, value in data.info.items %}
+                <tr>
+                    <th>{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        
+        <!-- Servers Section -->
+        <div class="section-box">
+            <div class="section-title">Servers</div>
+            <table class="table table-bordered">
+                <tr>
+                    {% for key, value in data.servers.production.items %}
+                    <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for key, value in data.servers.production.items %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Terms Section -->
+        <div class="section-box">
+            <div class="section-title">Terms</div>
+            <table class="table">
+                {% for key, value in data.terms.items %}
+                <tr>
+                    <th>{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Models Section -->
+        <div class="section-box">
+            <div class="section-title">Models</div>
+            {% for model, model_data in data.models.items %}
+            <h4>{{ model }}</h4>
+            <p>{{ model_data.description }}</p>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Field</th>
+                    <th>Details</th>
+                </tr>
+                {% for field, details in model_data.fields.items %}
+                <tr>
+                    <td>{{ field }}</td>
+                    <td>
+                        <table class="table table-bordered">
+                            {% for detail_key, detail_value in details.items %}
+                            <tr>
+                                <th>{{ detail_key }}</th>
+                                <td>{{ detail_value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </div>
+
+        <!-- Definitions Section -->
+        <div class="section-box">
+            <div class="section-title">Definitions</div>
+            {% for definition, definition_data in data.definitions.items %}
+            <h4>{{ definition }}</h4>
+            <table class="table table-bordered">
+                {% for key, value in definition_data.items %}
+                <tr>
+                    <th>{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

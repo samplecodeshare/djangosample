@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of YAML Files</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        function filterTable() {
+            let input = document.getElementById('searchInput');
+            let filter = input.value.toLowerCase();
+            let table = document.getElementById('yamlTable');
+            let tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName('td');
+                let show = false;
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        let txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                            show = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = show ? '' : 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Catalog</h2>
+    <input class="form-control mb-3" id="searchInput" type="text" onkeyup="filterTable()" placeholder="Search for anything...">
+    <table class="table table-striped" id="yamlTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Domain</th>
+                <th>Title</th>
+                <th>Version</th>
+                <th>Owner</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files_data %}
+                <tr>
+                    <td><a href="{% url 'display_yaml' file.filename %}">{{ file.id }}</a></td>
+                    <td>{{ file.domain }}</td>
+                    <td>{{ file.title }}</td>
+                    <td>{{ file.version }}</td>
+                    <td>{{ file.owner }}</td>
+                    <td>
+                        <a href="{% url 'display_yaml' file.filename %}" class="btn btn-primary">View</a>
+                        <a href="{% url 'edit_yaml' %}?filename={{ file.filename }}" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
