@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         .section-box {
-            font-size: 1em; /* Adjust the font size as needed */
             border: 1px solid #ddd;
             padding: 20px;
             margin: 20px 0;
             border-radius: 5px;
         }
         .section-title {
-            font-size: 1.5em;
+            font-size: 1.2em; /* Adjust the font size as needed */
             margin-bottom: 10px;
             cursor: pointer;
             display: flex;
@@ -138,11 +137,52 @@
                             <td>{{ details.type }}</td>
                             <td>
                                 <div class="details-div">
-                                    {% for detail_key, detail_value in details.items %}
-                                    {% if detail_key != "type" %}
-                                    <div class="details-item"><strong>{{ detail_key|title }}:</strong> {{ detail_value }}</div>
+                                    {% if details.type == 'Object' %}
+                                        <div class="details-item">
+                                            <strong>Properties:</strong>
+                                            <ul>
+                                                {% for prop, prop_details in details.properties.items %}
+                                                <li>
+                                                    <strong>{{ prop }}:</strong> {{ prop_details.type }}
+                                                    <ul>
+                                                        {% for key, value in prop_details.items %}
+                                                        <li>
+                                                            <strong>{{ key|title }}:</strong>
+                                                            {% if key == '$ref' %}
+                                                            <a href="#{{ value.split('/')[-1] }}">{{ value }}</a>
+                                                            {% else %}
+                                                            {{ value }}
+                                                            {% endif %}
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% elif details.type == 'array' %}
+                                        <div class="details-item">
+                                            <strong>Items:</strong>
+                                            <ul>
+                                                {% for key, value in details.items.items %}
+                                                <li>
+                                                    <strong>{{ key|title }}:</strong>
+                                                    {% if key == '$ref' %}
+                                                    <a href="#{{ value.split('/')[-1] }}">{{ value }}</a>
+                                                    {% else %}
+                                                    {{ value }}
+                                                    {% endif %}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% else %}
+                                        {% for detail_key, detail_value in details.items %}
+                                        {% if detail_key != "type" %}
+                                        <div class="details-item"><strong>{{ detail_key|title }}:</strong> {{ detail_value }}</div>
+                                        {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                    {% endfor %}
                                 </div>
                             </td>
                         </tr>
@@ -162,7 +202,7 @@
         </div>
         <div id="definitionsSection" class="collapse">
             {% for definition, definition_data in data.definitions.items %}
-            <h4>{{ definition }}</h4>
+            <h4 id="{{ definition }}">{{ definition }}</h4>
             <table class="table table-bordered">
                 {% for key, value in definition_data.items %}
                 <tr>
