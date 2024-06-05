@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         .section-box {
-            font-size: 1em; /* Adjust the font size as needed */
             border: 1px solid #ddd;
             padding: 20px;
             margin: 20px 0;
             border-radius: 5px;
         }
         .section-title {
-            font-size: 1.5em;
+            font-size: 1.25em;
             margin-bottom: 10px;
             cursor: pointer;
             display: flex;
@@ -55,19 +54,48 @@
     
     <!-- Info Section -->
     <div class="section-box">
-        <div class="section-title" data-toggle="collapse" data-target="#infoSection" aria-expanded="false">
+        <div class="section-title" data-toggle="collapse" data-target="#infoSection" aria-expanded="true">
             Info
-            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-chevron-up"></i>
         </div>
-        <div id="infoSection" class="collapse">
+        <div id="infoSection" class="collapse show">
             <table class="table">
                 {% for key, value in data.info.items %}
+                {% if key != 'contact' %}
                 <tr>
                     <th>{{ key|title }}</th>
                     <td>{{ value }}</td>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </table>
+            {% if data.info.contact %}
+            <div class="section-box">
+                <h4 class="section-title" data-toggle="collapse" data-target="#contactSection" aria-expanded="false">
+                    Contact
+                    <i class="fas fa-chevron-down"></i>
+                </h4>
+                <div id="contactSection" class="collapse">
+                    <div class="row">
+                        {% for role, details in data.info.contact.items %}
+                        <div class="col-md-3">
+                            <div class="section-box">
+                                <h5>{{ role|title }}</h5>
+                                <table class="table">
+                                    {% for key, value in details.items %}
+                                    <tr>
+                                        <th>{{ key|title }}</th>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     
@@ -78,18 +106,24 @@
             <i class="fas fa-chevron-down"></i>
         </div>
         <div id="serversSection" class="collapse">
-            <table class="table table-bordered">
-                <tr>
-                    {% for key in data.servers.production %}
-                    <th>{{ key|title }}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    {% for value in data.servers.production.values %}
-                    <td>{{ value }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
+            {% for server, details in data.servers.items %}
+            <div class="section-box">
+                <h4 class="section-title" data-toggle="collapse" data-target="#{{ server }}Section" aria-expanded="false">
+                    {{ server|title }}
+                    <i class="fas fa-chevron-down"></i>
+                </h4>
+                <div id="{{ server }}Section" class="collapse">
+                    <table class="table table-bordered">
+                        {% for key, value in details.items %}
+                        <tr>
+                            <th>{{ key|title }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
     
@@ -140,7 +174,13 @@
                                 <div class="details-div">
                                     {% for detail_key, detail_value in details.items %}
                                     {% if detail_key != "type" %}
-                                    <div class="details-item"><strong>{{ detail_key|title }}:</strong> {{ detail_value }}</div>
+                                    <div class="details-item">
+                                        {% if detail_key == "$ref" %}
+                                        <strong>{{ detail_key|title }}:</strong> <a href="#" class="ref-link" data-target="#definitionsSection" data-ref="{{ detail_value.split('/').last }}">{{ detail_value }}</a>
+                                        {% else %}
+                                        <strong>{{ detail_key|title }}:</strong> {{ detail_value }}
+                                        {% endif %}
+                                    </div>
                                     {% endif %}
                                     {% endfor %}
                                 </div>
@@ -207,8 +247,21 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    $('.section-title').on('click', function() {
+    $('.section-title').click(function() {
         $(this).find('i').toggleClass('fa-chevron-down fa-chevron-up');
+    });
+
+    $('.ref-link').click(function(e) {
+        e.preventDefault();
+        var target = $(this).data('target');
+        var ref = $(this).data('ref');
+        $(target).collapse('show');
+        $('html, body').animate({
+            scrollTop: $(target).offset().top
+        }, 500);
+        setTimeout(function() {
+            $('#' + ref + 'Section').collapse('show');
+        }, 500);
     });
 </script>
 </body>

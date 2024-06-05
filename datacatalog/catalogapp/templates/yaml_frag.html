@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Display YAML</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .section-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .section-title {
+            font-size: 1.2em; /* Adjust the font size as needed */
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            border: none;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #ddd;
+        }
+        .details-div {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .details-item {
+            flex: 1 1 30%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <h2>{{ filename }}</h2>
+        <div>
+            <a href="{% url 'list_yaml_files' %}" class="btn btn-primary">Catalog</a>
+            <a href="{% url 'edit_yaml' %}?filename={{ filename }}" class="btn btn-primary">Edit</a>
+        </div>
+    </div>
+    
+    <!-- Info Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#infoSection" aria-expanded="true">
+            Info
+            <i class="fas fa-chevron-up"></i> <!-- Change to up arrow since the section is expanded -->
+        </div>
+        <div id="infoSection" class="collapse show">
+            <table class="table">
+                {% for key, value in data.info.items %}
+                <tr>
+                    <th>{{ key|title }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+                <!-- Contact Subsection -->
+                <tr>
+                    <th>Contact</th>
+                    <td>
+                        <div class="row">
+                            {% for person, contact_info in data.info.contact.items %}
+                            <div class="col-md-3">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>{{ person|title }}</th>
+                                    </tr>
+                                    {% for key, value in contact_info.items %}
+                                    <tr>
+                                        <td>{{ key|title }}</td>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Servers Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#serversSection" aria-expanded="false">
+            Servers
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="serversSection" class="collapse">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Environment</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for env, details in data.servers.items %}
+                    <tr>
+                        <td>{{ env|title }}</td>
+                        <td>{{ details.type }}</td>
+                        <td>{{ details.location }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Terms Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#termsSection" aria-expanded="false">
+            Terms
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="termsSection" class="collapse">
+            <table class="table">
+                {% for key, value in data.terms.items %}
+                <tr>
+                    <th>{{ key|title }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    
+    <!-- Models Section -->
+    <div class="section-box">
+        <div class="section-title" data-toggle="collapse" data-target="#modelsSection" aria-expanded="false">
+            Models
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="modelsSection" class="collapse">
+            <!-- Your
