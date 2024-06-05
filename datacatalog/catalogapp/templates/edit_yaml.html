@@ -2,37 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit YAML</title>
+    <title>Edit and Visualize YAML</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/eclipse.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <style>
         .CodeMirror {
             border: 1px solid #ddd;
-            height: auto;
+            height: calc(100vh - 80px);
+        }
+        .content-container {
+            width: 90%;
+            margin: auto;
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 80px);
+        }
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f1f1f1;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .editor-container, .visual-container {
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: horizontal;
+        }
+        .editor-content, .visual-content {
+            padding: 10px;
+            flex-grow: 1;
+            overflow: auto;
+        }
+        .collapsed {
+            width: 40px !important;
+            overflow: hidden;
+        }
+        #visual {
+            height: calc(100vh - 80px);
+            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>Edit Contract</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div>
-            <button type="submit" class="btn btn-primary mt-3">Save</button>
-            <a href="{% url 'list_yaml_files' %}" class="btn btn-primary mt-3">Catalog</a>
+<div class="content-container mt-5">
+    <div class="editor-container" style="width: 50%;">
+        <div class="container-header">
+            <h2>Edit Contract</h2>
+            <button class="collapse-btn btn btn-sm btn-outline-secondary">Collapse</button>
         </div>
-        <textarea id="yaml-editor" name="yaml_content">{{ form.yaml_content.value }}</textarea>        
-    </form>
+        <div class="editor-content">
+            <form id="yamlForm">
+                <textarea id="yaml-editor">{{ form.yaml_content.value }}</textarea>
+            </form>
+        </div>
+    </div>
+    <div class="visual-container" style="width: 50%;">
+        <div class="container-header">
+            <h2>Visual Representation</h2>
+            <button class="collapse-btn btn btn-sm btn-outline-secondary">Collapse</button>
+        </div>
+        <div class="visual-content">
+            <pre id="visual"></pre>
+        </div>
+    </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/yaml/yaml.min.js"></script>
 <script>
+    // Initialize the CodeMirror editor
     var editor = CodeMirror.fromTextArea(document.getElementById('yaml-editor'), {
         mode: 'yaml',
         lineNumbers: true,
         theme: 'eclipse'
+    });
+
+    // Update the visual representation when the editor content changes
+    editor.on('change', function() {
+        var yamlContent = editor.getValue();
+        document.getElementById('visual').textContent = yamlContent;
+    });
+
+    // Initial update
+    document.getElementById('visual').textContent = editor.getValue();
+
+    // Make containers resizable
+    $(".editor-container, .visual-container").resizable({
+        handles: 'e',
+        minWidth: 100,
+        maxWidth: $(window).width() - 100
+    });
+
+    // Collapse/Expand functionality
+    $('.collapse-btn').on('click', function() {
+        var container = $(this).closest('.editor-container, .visual-container');
+        var isCollapsed = container.hasClass('collapsed');
+
+        if (isCollapsed) {
+            container.removeClass('collapsed').css('width', '50%');
+            $(this).text('Collapse');
+        } else {
+            container.addClass('collapsed');
+            $(this).text('Expand');
+        }
     });
 </script>
 </body>

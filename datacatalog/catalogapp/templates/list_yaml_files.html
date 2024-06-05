@@ -4,61 +4,176 @@
     <meta charset="UTF-8">
     <title>List of YAML Files</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script>
-        function filterTable() {
-            let input = document.getElementById('searchInput');
-            let filter = input.value.toLowerCase();
-            let table = document.getElementById('yamlTable');
-            let tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName('td');
-                let show = false;
-                for (let j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        let txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                            show = true;
-                            break;
-                        }
-                    }
-                }
-                tr[i].style.display = show ? '' : 'none';
-            }
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+    <style>
+        body {
+            font-size: 0.875rem; /* Smaller font size */
         }
+        .table td, .table th {
+            padding: 0.3rem; /* Smaller padding */
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            font-size: 0.875rem; /* Match input font size */
+        }
+        .btn-sm-custom {
+            padding: 0.2rem 0.5rem; /* Adjust padding for smaller buttons */
+            font-size: 0.8rem; /* Slightly smaller font size for buttons */
+            line-height: 1.2; /* Adjust line height for smaller buttons */
+        }
+        .content-container {
+            width: 90%;
+            margin: auto;
+        }
+        .dataTables_scrollBody {
+            overflow: visible !important;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.rawgit.com/alvaro-prieto/colResizable/colsizable-1.6/colResizable-1.6.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table1 = $('#yamlTable1').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthMenu": [10, 25, 50, 100],
+                "language": {
+                    "search": "Filter records:"
+                }
+            });
+
+            var table2 = $('#yamlTable2').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "lengthMenu": [10, 25, 50, 100],
+                "language": {
+                    "search": "Filter records:"
+                }
+            });
+
+            // Synchronize column widths between tables
+            function syncTableColumns() {
+                var colWidths = [];
+                $('#yamlTable1 th').each(function(index) {
+                    colWidths.push($(this).width());
+                });
+                $('#yamlTable2 th').each(function(index) {
+                    $(this).width(colWidths[index]);
+                });
+            }
+
+            syncTableColumns();
+            $(window).resize(syncTableColumns);
+
+            $("#yamlTable1").colResizable({
+                liveDrag: true,
+                fixed: false,
+                onResize: syncTableColumns
+            });
+
+            $("#yamlTable2").colResizable({
+                liveDrag: true,
+                fixed: false,
+                onResize: syncTableColumns
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+                syncTableColumns();
+            });
+        });
     </script>
 </head>
 <body>
-<div class="container mt-5">
-    <h2>Catalog</h2>
-    <input class="form-control mb-3" id="searchInput" type="text" onkeyup="filterTable()" placeholder="Search for anything...">
-    <table class="table table-striped" id="yamlTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Domain</th>
-                <th>Title</th>
-                <th>Version</th>
-                <th>Owner</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for file in files_data %}
-                <tr>
-                    <td><a href="{% url 'display_yaml' file.filename %}">{{ file.id }}</a></td>
-                    <td>{{ file.domain }}</td>
-                    <td>{{ file.title }}</td>
-                    <td>{{ file.version }}</td>
-                    <td>{{ file.owner }}</td>
-                    <td>
-                        <a href="{% url 'display_yaml' file.filename %}" class="btn btn-primary">View</a>
-                        <a href="{% url 'edit_yaml' %}?filename={{ file.filename }}" class="btn btn-primary">Edit</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="content-container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Catalog</h2>
+        <div>
+            <a href="#" class="btn btn-primary btn-sm-custom mr-2">New Button</a>
+            <a href="#" class="btn btn-link">Separate Link</a>
+        </div>
+    </div>
+    
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="tab1-tab" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="true">Tab 1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab2-tab" data-toggle="tab" href="#tab2" role="tab" aria-controls="tab2" aria-selected="false">Tab 2</a>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+            <table class="table table-striped table-bordered table-sm" id="yamlTable1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Domain</th>
+                        <th>Title</th>
+                        <th>Version</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files_data %}
+                        <tr>
+                            <td><a href="{% url 'display_yaml' file.filename %}">{{ file.id }}</a></td>
+                            <td>{{ file.domain }}</td>
+                            <td>{{ file.title }}</td>
+                            <td>{{ file.version }}</td>
+                            <td>{{ file.owner }}</td>
+                            <td>
+                                <a href="{% url 'display_yaml' file.filename %}" class="btn btn-primary btn-sm-custom">View</a>
+                                <a href="{% url 'edit_yaml' %}?filename={{ file.filename }}" class="btn btn-primary btn-sm-custom">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+            <table class="table table-striped table-bordered table-sm" id="yamlTable2">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Domain</th>
+                        <th>Title</th>
+                        <th>Version</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files_data %}
+                        <tr>
+                            <td><a href="{% url 'display_yaml' file.filename %}">{{ file.id }}</a></td>
+                            <td>{{ file.domain }}</td>
+                            <td>{{ file.title }}</td>
+                            <td>{{ file.version }}</td>
+                            <td>{{ file.owner }}</td>
+                            <td>
+                                <a href="{% url 'display_yaml' file.filename %}" class="btn btn-primary btn-sm-custom">View</a>
+                                <a href="{% url 'edit_yaml' %}?filename={{ file.filename }}" class="btn btn-primary btn-sm-custom">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

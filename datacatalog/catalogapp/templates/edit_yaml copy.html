@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit YAML</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/eclipse.min.css">
+    <style>
+        .CodeMirror {
+            border: 1px solid #ddd;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Edit Contract</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <button type="submit" class="btn btn-primary mt-3">Save</button>
+            <a href="{% url 'list_yaml_files' %}" class="btn btn-primary mt-3">Catalog</a>
+        </div>
+        <textarea id="yaml-editor" name="yaml_content">{{ form.yaml_content.value }}</textarea>        
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/yaml/yaml.min.js"></script>
+<script>
+    var editor = CodeMirror.fromTextArea(document.getElementById('yaml-editor'), {
+        mode: 'yaml',
+        lineNumbers: true,
+        theme: 'eclipse'
+    });
+</script>
+</body>
+</html>

@@ -28,21 +28,26 @@ def list_yaml_files(request):
 
 def edit_yaml(request):
     filename = request.GET.get('filename')
-    print("FILE PATH +==" +  filename)
-    filename = request.GET.get('filename')
     file_path = os.path.join(settings.YAML_FILES_DIR, filename)
     with open(file_path, 'r') as file:
         yaml_content = file.read()
-    
-    print(yaml_content)
-    
 
     context = {
         'data': yaml_content,
         'filename' : "Sample"
     }
 
-    form = YamlForm(initial={'yaml_content': yaml_content})
+    if request.method == 'POST':
+        form = YamlForm(request.POST)
+        if form.is_valid():
+            with open(filename, 'w') as file:
+                yaml_content = form.cleaned_data['yaml_content']
+                yaml_content = "\n".join([line.rstrip() for line in yaml_content.splitlines()])
+                # file.write(yaml_content)
+            return redirect('display_yaml', filename=filename)
+    else:
+        form = YamlForm(initial={'yaml_content': yaml_content})
+
     return render(request, 'edit_yaml.html', {'form': form})
 
 
