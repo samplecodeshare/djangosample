@@ -1,3 +1,14 @@
+# SELECT 
+#     order_id, 
+#     order_timestamp, 
+#     order_total, 
+#     customer_id, 
+#     customer_email_address, 
+#     processed_timestamp
+# FROM 
+#     orders
+# FOR JSON AUTO, ROOT('orders')
+
 import pyodbc
 import json
 import yaml
