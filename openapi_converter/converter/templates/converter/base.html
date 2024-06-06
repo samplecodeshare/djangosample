@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/yaml/yaml.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            text-align: center;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        #left, #right {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+        #separator {
+            width: 5px;
+            cursor: col-resize;
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>OpenAPI Generator</h1>
+    </div>
+    <div class="content">
+        <div id="left">
+            <form id="openapi-form" method="POST">
+                {% csrf_token %}
+                <button type="submit">Generate OpenAPI Spec</button>
+                <div id="json-input">
+                    <textarea id="json_sample" name="json_sample" rows="20" cols="80"></textarea>
+                </div>
+            </form>
+        </div>
+        <div id="separator"></div>
+        <div id="right">
+            <textarea id="openapi-spec" name="openapi_spec">{% if openapi_spec %}{{ openapi_spec }}{% endif %}</textarea>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const separator = document.getElementById('separator');
+            const left = document.getElementById('left');
+            const right = document.getElementById('right');
+            const form = document.getElementById('openapi-form');
+            const inputType = "json";
+            const jsonInput = document.getElementById('json-input');
+            const sqlInput = document.getElementById('sql-input');
+            const openapiSpecTextarea = document.getElementById('openapi-spec');
+
+            let x = 0;
+            let leftWidth = 0;
+
+            const mouseDownHandler = function (e) {
+                x = e.clientX;
+                leftWidth = left.getBoundingClientRect().width;
+
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+            };
+
+            const mouseMoveHandler = function (e) {
+                const dx = e.clientX - x;
+                left.style.width = `${leftWidth + dx}px`;
+            };
+
+            const mouseUpHandler = function () {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+            };
+
+            separator.addEventListener('mousedown', mouseDownHandler);
+
+            const codeMirrorEditor = CodeMirror.fromTextArea(openapiSpecTextarea, {
+                lineNumbers: true,
+                mode: "yaml",
+                readOnly: false,
+            });
+            codeMirrorEditor.setSize("100%","80%");
+        });
+    </script>
+</body>
+</html>
